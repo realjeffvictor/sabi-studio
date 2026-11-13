@@ -16,7 +16,7 @@ the lines, scores the music, and puts it all together.
 
 Most AI video tools can show you a beautiful picture, but they can't
 talk like us. Sabi Studio puts authentic African languages and
-accents at the center, not as an afterthought.
+accents at the center, not as an afterthought!
 
 ## Features
 
