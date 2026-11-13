@@ -5,7 +5,7 @@
 Sabi Studio is an AI video studio built for African storytellers.
 Type an idea, drop in an image, or record a voice note, and get back
 a finished video with a music score, sound effects, and dialogue that
-actually sounds like home: Hausa, Igbo, Yoruba, Nigerian Pidgin, and
+actually sounds like home: Hausa, Igbo, Yoruba, Nigerian Pidgin, Twi, Zulu, Swahili, and
 more languages on the way.
 
 Pick your style: anime, Disney-style animation, cinematic film, or
