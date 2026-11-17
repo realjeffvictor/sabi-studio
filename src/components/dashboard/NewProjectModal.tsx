@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { X } from 'lucide-react'
-import { createProject } from '../../services/projectService'
+import { createProject } from '../../services/ProjectService'
 import type { Project } from '../../types'
 import TextField from '../ui/TextField'
 import Button from '../ui/Button'
