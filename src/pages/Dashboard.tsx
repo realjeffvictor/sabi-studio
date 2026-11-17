@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Coins, Plus, Film } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { listProjects, deleteProject } from '../services/projectService'
+import { listProjects, deleteProject } from '../services/ProjectService'
 import { getProfile } from '../services/profileService'
 import type { Profile, Project } from '../types'
 import Container from '../components/ui/Container'
