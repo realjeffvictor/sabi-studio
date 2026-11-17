@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
 import Container from '../ui/Container'
 import Logo from '../ui/Logo'
 import ButtonLink from '../ui/ButtonLink'
+import Button from '../ui/Button'
 
 const links = [
   { label: 'Features', to: '/#features' },
@@ -14,9 +16,17 @@ const links = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    setOpen(false)
+    await signOut()
+    navigate('/')
+  }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/80 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
         <Logo />
 
@@ -33,12 +43,25 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/login" className="text-sm text-ink-300 hover:text-ink-100">
-            Log in
-          </Link>
-          <ButtonLink to="/signup" className="!px-5 !py-2">
-            Get started
-          </ButtonLink>
+          {user ? (
+            <>
+              <ButtonLink to="/dashboard" variant="ghost" className="!px-5 !py-2">
+                Dashboard
+              </ButtonLink>
+              <Button variant="ghost" onClick={handleLogout} className="!px-5 !py-2">
+                Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm text-ink-300 hover:text-ink-100">
+                Log in
+              </Link>
+              <ButtonLink to="/signup" className="!px-5 !py-2">
+                Get started
+              </ButtonLink>
+            </>
+          )}
         </div>
 
         <button
@@ -63,10 +86,21 @@ export default function Navbar() {
                 {l.label}
               </Link>
             ))}
-            <Link to="/login" onClick={() => setOpen(false)} className="text-ink-300">
-              Log in
-            </Link>
-            <ButtonLink to="/signup">Get started</ButtonLink>
+            {user ? (
+              <>
+                <ButtonLink to="/dashboard">Dashboard</ButtonLink>
+                <Button variant="ghost" onClick={handleLogout}>
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setOpen(false)} className="text-ink-300">
+                  Log in
+                </Link>
+                <ButtonLink to="/signup">Get started</ButtonLink>
+              </>
+            )}
           </Container>
         </div>
       )}
