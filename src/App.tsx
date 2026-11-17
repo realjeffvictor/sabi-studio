@@ -5,7 +5,7 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
-import ComingSoon from './pages/ComingSoon'
+import ProjectWizard from './pages/ProjectWizard'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -19,7 +19,7 @@ export default function App() {
         {/* Everything inside here requires a logged-in user */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/projects/:id" element={<ComingSoon title="Project" phase={3} />} />
+          <Route path="/projects/:id" element={<ProjectWizard />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
