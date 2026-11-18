@@ -18,9 +18,13 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
+     
       <main className="flex-1">
-        <Outlet />
+        <div key={pathname} className="animate-fade-up">
+          <Outlet />
+        </div>
       </main>
+        
       <Footer />
     </div>
   )
