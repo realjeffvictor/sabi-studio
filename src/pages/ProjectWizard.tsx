@@ -3,19 +3,21 @@ import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { getProject, updateProject } from '../services/ProjectService'
 import { listScenes, saveScenes, toEditable, toDraft } from '../services/SceneService'
-import type { EditableScene, Project, ProjectPatch } from '../types'
+import { listCharacters, updateCharacter } from '../services/CharacterService'
+import type { Character, EditableScene, Project, ProjectPatch } from '../types'
 import Container from '../components/ui/Container'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
 import Stepper from '../components/wizard/stepper'
 import StepInput from '../components/wizard/StepInput'
 import StepStyle from '../components/wizard/StepStyle'
-import StepLanguage from '../components/wizard/StepLanguage'
+import StepCast from '../components/wizard/StepCast'
 import StepSound from '../components/wizard/StepSound'
 import StepScenes from '../components/wizard/StepScenes'
 import StepGenerate from '../components/wizard/StepGenerate'
 
-const STEPS = ['Input', 'Style', 'Language', 'Sound', 'Scenes', 'Generate']
+const STEPS = ['Input', 'Style', 'Cast', 'Sound', 'Scenes', 'Generate']
+const CAST_STEP = 2
 const SCENES_STEP = 4
 
 const FIELDS = [
@@ -26,7 +28,6 @@ const FIELDS = [
   'accent',
   'music_mood',
   'target_duration',
-  'voice_key',
   'sfx_enabled',
   'voice_balance',
 ] as const
@@ -35,14 +36,23 @@ function formFields(p: Project): ProjectPatch {
   return Object.fromEntries(FIELDS.map((k) => [k, p[k]])) as ProjectPatch
 }
 
-function canContinue(step: number, p: Project, scenes: EditableScene[]): boolean {
+function canContinue(
+  step: number,
+  p: Project,
+  scenes: EditableScene[],
+  characters: Character[],
+): boolean {
   switch (step) {
     case 0:
       return (p.idea ?? '').trim().length >= 10
     case 1:
       return !!p.style
     case 2:
-      return !!p.language && !!p.accent && !!p.voice_key
+      return (
+        !!p.language &&
+        characters.length > 0 &&
+        characters.every((c) => c.name.trim() && c.language && c.accent && c.voice_key)
+      )
     case 3:
       return !!p.music_mood
     case 4:
@@ -55,6 +65,7 @@ function canContinue(step: number, p: Project, scenes: EditableScene[]): boolean
 export default function ProjectWizard() {
   const { id } = useParams()
   const [project, setProject] = useState<Project | null>(null)
+  const [characters, setCharacters] = useState<Character[]>([])
   const [scenes, setScenes] = useState<EditableScene[]>([])
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -66,11 +77,12 @@ export default function ProjectWizard() {
     if (!id) return
     let cancelled = false
 
-    Promise.all([getProject(id), listScenes(id)])
-      .then(([proj, sceneList]) => {
+    Promise.all([getProject(id), listScenes(id), listCharacters(id)])
+      .then(([proj, sceneList, castList]) => {
         if (cancelled) return
         setProject(proj)
         setScenes(sceneList.map(toEditable))
+        setCharacters(castList)
         // Returning to a project that already has scenes? Jump to them.
         setStep(sceneList.length > 0 ? SCENES_STEP : 0)
       })
@@ -97,10 +109,31 @@ export default function ProjectWizard() {
     try {
       const saved = await updateProject(project.id, formFields(project))
       setProject(saved)
+
+      if (step === CAST_STEP) {
+        const cleaned = characters.map((c) => ({ ...c, name: c.name.trim() }))
+        await Promise.all(
+          cleaned.map((c) =>
+            updateCharacter(c.id, {
+              name: c.name,
+              role: c.role,
+              description: c.description,
+              gender: c.gender,
+              age_group: c.age_group,
+              language: c.language,
+              accent: c.accent,
+              voice_key: c.voice_key,
+            }),
+          ),
+        )
+        setCharacters(cleaned)
+      }
+
       if (step === SCENES_STEP) {
         const stored = await saveScenes(project.id, scenes.map(toDraft))
         setScenes(stored.map(toEditable))
       }
+
       setStep((s) => s + 1)
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Could not save your changes.')
@@ -145,10 +178,24 @@ export default function ProjectWizard() {
       <div className="mt-6 rounded-2xl border border-ink-700 bg-ink-900 p-6 sm:p-8">
         {step === 0 && <StepInput project={project} onChange={change} />}
         {step === 1 && <StepStyle project={project} onChange={change} />}
-        {step === 2 && <StepLanguage project={project} onChange={change} />}
+        {step === 2 && (
+          <StepCast
+            project={project}
+            characters={characters}
+            setCharacters={setCharacters}
+            onChange={change}
+          />
+        )}
         {step === 3 && <StepSound project={project} onChange={change} />}
-        {step === 4 && <StepScenes project={project} scenes={scenes} setScenes={setScenes} />}
-        {step === 5 && <StepGenerate project={project} scenes={scenes} />}
+        {step === 4 && (
+          <StepScenes
+            project={project}
+            characters={characters}
+            scenes={scenes}
+            setScenes={setScenes}
+          />
+        )}
+        {step === 5 && <StepGenerate project={project} scenes={scenes} characters={characters} />}
       </div>
 
       {saveError && (
@@ -165,7 +212,7 @@ export default function ProjectWizard() {
           <Button
             onClick={goNext}
             loading={saving}
-            disabled={!canContinue(step, project, scenes)}
+            disabled={!canContinue(step, project, scenes, characters)}
           >
             Continue <ArrowRight size={16} />
           </Button>
