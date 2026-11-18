@@ -11,10 +11,12 @@ import NotFound from './pages/NotFound'
 export default function App() {
   return (
     <Routes>
+      {/* Full-screen auth pages, no navbar */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
       <Route element={<Layout />}>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
 
         {/* Everything inside here requires a logged-in user */}
         <Route element={<ProtectedRoute />}>
