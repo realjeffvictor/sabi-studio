@@ -2,17 +2,18 @@ import { useState, type Dispatch, type SetStateAction } from 'react'
 import { Sparkles, Plus, AlertTriangle } from 'lucide-react'
 import { mockGenerateScenes, mockRegenerateScene } from '../../services/scriptService'
 import { toEditable, toDraft } from '../../services/SceneService'
-import type { EditableScene, Project } from '../../types'
+import type { Character, EditableScene, Project } from '../../types'
 import Button from '../ui/Button'
 import SceneCard from './SceneCard'
 
 type Props = {
   project: Project
+  characters: Character[]
   scenes: EditableScene[]
   setScenes: Dispatch<SetStateAction<EditableScene[]>>
 }
 
-export default function StepScenes({ project, scenes, setScenes }: Props) {
+export default function StepScenes({ project, characters, scenes, setScenes }: Props) { 
   const [generating, setGenerating] = useState(false)
   const [busyKey, setBusyKey] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +24,7 @@ export default function StepScenes({ project, scenes, setScenes }: Props) {
     setGenerating(true)
     setError(null)
     try {
-      const drafts = await mockGenerateScenes(project)
+      const drafts = await mockGenerateScenes(project, characters)
       setScenes(drafts.map(toEditable))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not generate scenes.')
@@ -36,7 +37,7 @@ export default function StepScenes({ project, scenes, setScenes }: Props) {
     setBusyKey(scene.key)
     setError(null)
     try {
-      const update = await mockRegenerateScene(project, toDraft(scene, index))
+      const update = await mockRegenerateScene(project, toDraft(scene, index), characters)
       setScenes((list) => list.map((s) => (s.key === scene.key ? { ...s, ...update } : s)))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not regenerate the scene.')
@@ -70,7 +71,7 @@ export default function StepScenes({ project, scenes, setScenes }: Props) {
         scene_number: list.length + 1,
         duration_seconds: 5,
         visual_description: '',
-        camera_notes: '',
+        camera_notes: '', ambience: null,
         dialogue: [],
         sound_effects: [],
         music_cue: project.music_mood,
@@ -131,6 +132,7 @@ export default function StepScenes({ project, scenes, setScenes }: Props) {
                 index={i}
                 total={scenes.length}
                 busy={busyKey === scene.key}
+                characters={characters}
                 onChange={(next) => updateScene(scene.key, next)}
                 onMove={(dir) => move(i, dir)}
                 onDelete={() => remove(scene.key)}
