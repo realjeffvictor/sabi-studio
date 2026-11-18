@@ -23,11 +23,28 @@ export type Profile = {
   credits: number
 }
 
+export type Character = {
+  id: string
+  project_id: string
+  name: string
+  role: 'lead' | 'supporting' | 'narrator'
+  description: string | null
+  gender: 'female' | 'male' | null
+  age_group: 'child' | 'adult' | 'elder' | null
+  language: string | null
+  accent: string | null
+  voice_key: string | null
+}
+
+export type CharacterPatch = Partial<Omit<Character, 'id' | 'project_id'>>
+
 export type DialogueLine = {
+  character_id: string | null
   speaker: string
   text_native: string
   text_english: string
   emotion: string
+  delivery: string
 }
 
 export type SceneDraft = {
@@ -35,6 +52,7 @@ export type SceneDraft = {
   duration_seconds: number
   visual_description: string | null
   camera_notes: string | null
+  ambience: string | null
   dialogue: DialogueLine[]
   sound_effects: string[]
   music_cue: string | null
