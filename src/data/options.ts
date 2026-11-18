@@ -81,3 +81,30 @@ export const getStyle = (id: string | null) => STYLES.find((s) => s.id === id)
 export const getLanguage = (id: string | null) => LANGUAGES.find((l) => l.id === id)
 export const getVoice = (key: string | null) => VOICES.find((v) => v.key === key)
 export const getMood = (id: string | null) => MUSIC_MOODS.find((m) => m.id === id)
+
+export const EMOTIONS = [
+  'neutral',
+  'warm',
+  'excited',
+  'playful',
+  'serious',
+  'angry',
+  'sad',
+  'afraid',
+  'tender',
+  'sarcastic',
+]
+
+// Pick a sensible default voice for a character
+export function suggestVoice(
+  language: string | null,
+  gender: string | null,
+  age: string | null,
+): string | null {
+  const inLanguage = VOICES.filter((v) => v.language === language)
+  const match =
+    inLanguage.find((v) => v.gender === gender && v.age === age) ??
+    inLanguage.find((v) => v.gender === gender) ??
+    inLanguage[0]
+  return match?.key ?? null
+}
