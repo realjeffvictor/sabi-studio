@@ -6,19 +6,21 @@ import {
   getLanguage,
   getMood,
   getStyle,
-  getVoice,
+  
 } from '../../data/options'
 import { runMockPipeline } from '../../services/pipelineService'
-import type { EditableScene, Project } from '../../types'
+import type { Character, EditableScene, Project } from '../../types'
 import Button from '../ui/Button'
 import ButtonLink from '../ui/ButtonLink'
 
 export default function StepGenerate({
   project,
   scenes,
+  characters,
 }: {
   project: Project
   scenes: EditableScene[]
+  characters: Character[]
 }) {
   const [running, setRunning] = useState(false)
   const [stageIndex, setStageIndex] = useState(-1)
@@ -52,10 +54,10 @@ export default function StepGenerate({
     }
   }
 
-  const summary = [
+    const summary = [
     ['Style', getStyle(project.style)?.name],
-    ['Language', `${getLanguage(project.language)?.name ?? '-'} (${project.accent ?? '-'})`],
-    ['Voice', getVoice(project.voice_key)?.name],
+    ['Story language', getLanguage(project.language)?.name],
+    ['Cast', characters.map((c) => c.name).join(', ')],
     ['Music', getMood(project.music_mood)?.name],
     ['Scenes', `${scenes.length} scenes, ${seconds}s`],
   ]
