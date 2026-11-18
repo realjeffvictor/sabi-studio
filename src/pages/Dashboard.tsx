@@ -3,10 +3,12 @@ import { Coins, Plus, Film } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { listProjects, deleteProject } from '../services/ProjectService'
 import { getProfile } from '../services/profileService'
+import { SLIDES } from '../data/media'
 import type { Profile, Project } from '../types'
 import Container from '../components/ui/Container'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
+import MediaSlideshow from '../components/ui/MediaSlideshow'
 import ProjectCard from '../components/dashboard/ProjectCard'
 import NewProjectModal from '../components/dashboard/NewProjectModal'
 
@@ -63,26 +65,47 @@ export default function Dashboard() {
   }
 
   const name = profile?.display_name || user?.email?.split('@')[0] || 'there'
+  const chip =
+    'inline-flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/60 px-4 py-2 text-sm backdrop-blur'
 
   return (
-    <Container className="py-12">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-3xl font-bold">Welcome, {name}</h1>
-          <p className="mt-2 text-ink-300">Your stories live here.</p>
+    <Container className="scope-teal py-10">
+      <section className="relative overflow-hidden rounded-3xl border border-white/10">
+        <MediaSlideshow
+          slides={SLIDES}
+          interval={8000}
+          overlay="strong"
+          showCaption={false}
+          showDots={false}
+          className="absolute inset-0"
+        />
+        <div className="relative flex flex-col gap-8 p-8 sm:flex-row sm:items-end sm:justify-between sm:p-12">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gold-400">
+              Your studio
+            </p>
+            <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
+              Welcome, {name}
+            </h1>
+            <p className="mt-2 text-ink-300">Your stories live here.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={chip}>
+              <Coins size={16} className="text-gold-400" />
+              {profile ? `${profile.credits} credits` : '— credits'}
+            </span>
+            <span className={chip}>
+              <Film size={16} className="text-gold-400" />
+              {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+            </span>
+            <Button onClick={() => setShowNew(true)}>
+              <Plus size={16} /> New project
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-700 bg-ink-900 px-4 py-2 text-sm">
-            <Coins size={16} className="text-gold-400" />
-            {profile ? `${profile.credits} credits` : '— credits'}
-          </span>
-          <Button onClick={() => setShowNew(true)}>
-            <Plus size={16} /> New project
-          </Button>
-        </div>
-      </div>
+      </section>
 
-      <div className="mt-12">
+      <div className="mt-10">
         {loading ? (
           <div className="flex justify-center py-20">
             <Spinner size={28} />
