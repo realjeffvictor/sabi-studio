@@ -19,6 +19,7 @@ import StepGenerate from '../components/wizard/StepGenerate'
 const STEPS = ['Input', 'Style', 'Cast', 'Sound', 'Scenes', 'Generate']
 const CAST_STEP = 2
 const SCENES_STEP = 4
+const STEP_SCOPES = ['', 'scope-ember', 'scope-teal', 'scope-violet', '', 'scope-rose']
 
 const FIELDS = [
   'title',
@@ -162,7 +163,8 @@ export default function ProjectWizard() {
   }
 
   return (
-    <Container className="max-w-4xl py-10">
+    <Container className={`max-w-4xl py-10 ${STEP_SCOPES[step]}`}>
+    
       <Link
         to="/dashboard"
         className="inline-flex items-center gap-1.5 text-sm text-ink-300 hover:text-ink-100"
@@ -175,7 +177,7 @@ export default function ProjectWizard() {
         <Stepper steps={STEPS} current={step} onSelect={setStep} />
       </div>
 
-      <div className="mt-6 rounded-2xl border border-ink-700 bg-ink-900 p-6 sm:p-8">
+      <div key={step} className="mt-6 animate-fade-up rounded-2xl border border-ink-700 bg-ink-900 p-6 sm:p-8">
         {step === 0 && <StepInput project={project} onChange={change} />}
         {step === 1 && <StepStyle project={project} onChange={change} />}
         {step === 2 && (
